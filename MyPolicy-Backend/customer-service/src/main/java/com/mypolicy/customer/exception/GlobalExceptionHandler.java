@@ -13,6 +13,36 @@ import java.util.Map;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
+  @ExceptionHandler(CustomerNotFoundException.class)
+  public ResponseEntity<Map<String, Object>> handleCustomerNotFoundException(CustomerNotFoundException ex) {
+    Map<String, Object> error = new HashMap<>();
+    error.put("timestamp", LocalDateTime.now());
+    error.put("message", ex.getMessage());
+    error.put("status", HttpStatus.NOT_FOUND.value());
+
+    return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+  }
+
+  @ExceptionHandler(DuplicateCustomerException.class)
+  public ResponseEntity<Map<String, Object>> handleDuplicateCustomerException(DuplicateCustomerException ex) {
+    Map<String, Object> error = new HashMap<>();
+    error.put("timestamp", LocalDateTime.now());
+    error.put("message", ex.getMessage());
+    error.put("status", HttpStatus.CONFLICT.value());
+
+    return new ResponseEntity<>(error, HttpStatus.CONFLICT);
+  }
+
+  @ExceptionHandler(InvalidCredentialsException.class)
+  public ResponseEntity<Map<String, Object>> handleInvalidCredentialsException(InvalidCredentialsException ex) {
+    Map<String, Object> error = new HashMap<>();
+    error.put("timestamp", LocalDateTime.now());
+    error.put("message", ex.getMessage());
+    error.put("status", HttpStatus.UNAUTHORIZED.value());
+
+    return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
+  }
+
   @ExceptionHandler(RuntimeException.class)
   public ResponseEntity<Map<String, Object>> handleRuntimeException(RuntimeException ex) {
     Map<String, Object> error = new HashMap<>();

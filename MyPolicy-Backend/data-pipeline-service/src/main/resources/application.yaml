@@ -9,9 +9,11 @@
 # ========================================
 
 server:
-  port: 8082
+  port: 8081
 
 spring:
+  config:
+    import: optional:configserver:http://admin:config123@localhost:8888
   application:
     name: data-pipeline-service
 
@@ -37,11 +39,6 @@ spring:
   # ========================================
   # MongoDB Configuration (Ingestion Module)
   # ========================================
-  autoconfigure:
-    exclude:
-      - org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration
-      - org.springframework.boot.autoconfigure.data.mongo.MongoDataAutoConfiguration
-
   data:
     mongodb:
       uri: mongodb://localhost:27017/ingestion_db
@@ -55,55 +52,6 @@ spring:
       enabled: true
       max-file-size: 50MB
       max-request-size: 50MB
-
-# File storage
-file:
-  upload-dir: ./uploads
-
-# ========================================
-# Feign Client Configuration (Matching Module)
-# ========================================
-customer:
-  service:
-    url: http://localhost:8081
-
-policy:
-  service:
-    url: http://localhost:8085
-
-feign:
-  client:
-    config:
-      default:
-        connectTimeout: 5000
-        readTimeout: 5000
-
-# ========================================
-# Module Specific Configuration
-# ========================================
-pipeline:
-  # Ingestion Module
-  ingestion:
-    enabled: true
-    max-batch-size: 1000
-
-  # Metadata Module
-  metadata:
-    enabled: true
-    cache-ttl: 3600
-
-  # Processing Module
-  processing:
-    enabled: true
-    thread-pool-size: 10
-    chunk-size: 100
-
-  # Matching Module
-  matching:
-    enabled: true
-    fuzzy-threshold: 3
-    strong-match-threshold: 2
-    weak-match-threshold: 3
 
 # ========================================
 # Logging Configuration
@@ -127,3 +75,10 @@ management:
   endpoint:
     health:
       show-details: always
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_DEFAULT_ZONE:http://localhost:8761/eureka}
+  instance:
+    prefer-ip-address: true

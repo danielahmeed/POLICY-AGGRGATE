@@ -24,9 +24,19 @@ public class CustomerUpdateRequest {
   @Pattern(regexp = "^[A-Z]{5}[0-9]{4}[A-Z]{1}$", message = "Invalid PAN format")
   private String panNumber;
 
-  private String dateOfBirth;  // Format: YYYY-MM-DD
+  private String dateOfBirth; // Format: YYYY-MM-DD
 
+  // Address fields (CSV mapping)
+  private String permanentAddressLine1;
+  private String permanentAddressLine2;
+  private String permanentAddressLine3;
+  private String permanentAddressCity;
+  private String permanentAddressZip;
+  private String customerAddressZip;
+
+  // Legacy field
   private String address;
 
-  // Note: Password update should be handled separately with old password verification
+  // Note: Password update should be handled separately with old password
+  // verification
 }

@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@FeignClient(name = "policy-service", url = "${policy.service.url}")
+@FeignClient(name = "policy-service")
 public interface PolicyClient {
 
   @GetMapping("/api/v1/policies/customer/{customerId}")

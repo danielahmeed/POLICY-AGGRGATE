@@ -41,6 +41,26 @@ public class Customer {
   @Column(nullable = false)
   private String passwordHash;
 
+  // Permanent Address Fields (from CSV)
+  @Column(columnDefinition = "TEXT")
+  private String permanentAddressLine1;
+
+  @Column(columnDefinition = "TEXT")
+  private String permanentAddressLine2;
+
+  @Column(columnDefinition = "TEXT")
+  private String permanentAddressLine3;
+
+  @Column
+  private String permanentAddressCity;
+
+  @Column
+  private String permanentAddressZip;
+
+  @Column
+  private String customerAddressZip;
+
+  // Legacy field - kept for backward compatibility
   @Column(columnDefinition = "TEXT")
   private String address;
 

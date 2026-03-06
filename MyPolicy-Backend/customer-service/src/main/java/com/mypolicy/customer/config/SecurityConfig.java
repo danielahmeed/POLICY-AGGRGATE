@@ -1,5 +1,7 @@
 package com.mypolicy.customer.config;
 
+import com.mypolicy.customer.security.JwtAuthenticationFilter;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -10,27 +12,47 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+/**
+ * Security Configuration for Customer Service
+ * 
+ * CRITICAL SECURITY IMPLEMENTATION:
+ * - JWT Authentication Filter validates all incoming requests
+ * - Stateless session management (no server-side sessions)
+ * - BCrypt password encoding
+ * - Public endpoints: /register, /login, /health
+ * - All other endpoints require valid JWT token
+ */
 @Configuration
 @EnableWebSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
+
+  private final JwtAuthenticationFilter jwtAuthFilter;
 
   @Bean
   public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
     http
         .csrf(csrf -> csrf.disable())
         .authorizeHttpRequests(auth -> auth
-            // Allow Registration and Login endpoints publicly
-            .requestMatchers("/api/v1/customers/register", "/api/v1/customers/login", "/api/v1/actuator/**").permitAll()
+            // Public endpoints - no authentication required
+            .requestMatchers(
+                "/api/v1/customers/register",
+                "/api/v1/customers/login",
+                "/",
+                "/health",
+                "/api/health",
+                "/api/v1/health",
+                "/api/v1/ping",
+                "/api/v1/actuator/**")
+            .permitAll()
             // All other endpoints require authentication
             .anyRequest().authenticated())
-        // Stateless session for microservices
-        .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
-    // Add JWT filter if necessary, but for this service (Customer Master),
-    // the primary goal is to *issue* tokens. We might need validation if it calls
-    // itself or for specific secured routes.
-    // For now, we will handle authentication in the service layer manually for
-    // login.
+        // Stateless session management (JWT-based)
+        .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+        // Add JWT filter before UsernamePasswordAuthenticationFilter
+        .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
     return http.build();
   }

@@ -2,34 +2,10 @@ server:
   port: 8080
 
 spring:
+  config:
+    import: optional:configserver:http://admin:config123@localhost:8888
   application:
     name: bff-service
-
-# Service URLs
-customer:
-  service:
-    url: http://localhost:8081
-
-policy:
-  service:
-    url: http://localhost:8085
-
-# Data Pipeline Service (Consolidated: Ingestion + Metadata + Processing + Matching)
-data-pipeline:
-  service:
-    url: http://localhost:8082
-
-ingestion:
-  service:
-    url: http://localhost:8082
-
-metadata:
-  service:
-    url: http://localhost:8082
-
-processing:
-  service:
-    url: http://localhost:8082
 
 # Feign Configuration
 feign:
@@ -43,3 +19,10 @@ feign:
 logging:
   level:
     com.mypolicy.bff: DEBUG
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_DEFAULT_ZONE:http://localhost:8761/eureka}
+  instance:
+    prefer-ip-address: true

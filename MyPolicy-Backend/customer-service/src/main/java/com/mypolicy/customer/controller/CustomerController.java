@@ -41,4 +41,25 @@ public class CustomerController {
       @Valid @RequestBody CustomerUpdateRequest request) {
     return ResponseEntity.ok(customerService.updateCustomer(customerId, request));
   }
+
+  @GetMapping("/search/mobile/{mobile}")
+  public ResponseEntity<CustomerResponse> searchByMobile(@PathVariable String mobile) {
+    return customerService.searchByMobile(mobile)
+        .map(ResponseEntity::ok)
+        .orElse(ResponseEntity.notFound().build());
+  }
+
+  @GetMapping("/search/email/{email}")
+  public ResponseEntity<CustomerResponse> searchByEmail(@PathVariable String email) {
+    return customerService.searchByEmail(email)
+        .map(ResponseEntity::ok)
+        .orElse(ResponseEntity.notFound().build());
+  }
+
+  @GetMapping("/search/pan/{pan}")
+  public ResponseEntity<CustomerResponse> searchByPan(@PathVariable String pan) {
+    return customerService.searchByPan(pan)
+        .map(ResponseEntity::ok)
+        .orElse(ResponseEntity.notFound().build());
+  }
 }

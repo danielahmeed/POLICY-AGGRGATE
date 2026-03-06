@@ -56,7 +56,27 @@ services:
     networks:
       - mypolicy-network
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8888/actuator/health"]
+      test: ["CMD", "wget", "-qO-", "http://localhost:8888/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 40s
+
+  # Discovery Service (Eureka Server)
+  discovery-service:
+    build:
+      context: ./discovery-service
+      dockerfile: Dockerfile
+    container_name: mypolicy-discovery-service
+    ports:
+      - "8761:8761"
+    depends_on:
+      config-service:
+        condition: service_healthy
+    networks:
+      - mypolicy-network
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8761/actuator/health"]
       interval: 10s
       timeout: 5s
       retries: 10
@@ -72,13 +92,16 @@ services:
       - "8081:8081"
     environment:
       SPRING_PROFILES_ACTIVE: docker
-      SPRING_CLOUD_CONFIG_URI: http://config-service:8888
+      SPRING_CONFIG_IMPORT: optional:configserver:http://admin:config123@config-service:8888
       SPRING_APPLICATION_NAME: customer-service
+      EUREKA_DEFAULT_ZONE: http://discovery-service:8761/eureka
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/mypolicy_db
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: postgres
     depends_on:
       config-service:
+        condition: service_healthy
+      discovery-service:
         condition: service_healthy
       postgres:
         condition: service_healthy
@@ -96,13 +119,16 @@ services:
       - "8085:8085"
     environment:
       SPRING_PROFILES_ACTIVE: docker
-      SPRING_CLOUD_CONFIG_URI: http://config-service:8888
+      SPRING_CONFIG_IMPORT: optional:configserver:http://admin:config123@config-service:8888
       SPRING_APPLICATION_NAME: policy-service
+      EUREKA_DEFAULT_ZONE: http://discovery-service:8761/eureka
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/mypolicy_db
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: postgres
     depends_on:
       config-service:
+        condition: service_healthy
+      discovery-service:
         condition: service_healthy
       postgres:
         condition: service_healthy
@@ -120,19 +146,19 @@ services:
       - "8082:8082"
     environment:
       SPRING_PROFILES_ACTIVE: docker
-      SPRING_CLOUD_CONFIG_URI: http://config-service:8888
+      SPRING_CONFIG_IMPORT: optional:configserver:http://admin:config123@config-service:8888
       SPRING_APPLICATION_NAME: data-pipeline-service
+      EUREKA_DEFAULT_ZONE: http://discovery-service:8761/eureka
       # PostgreSQL (for Metadata)
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/mypolicy_db
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: postgres
       # MongoDB (for Ingestion)
       SPRING_DATA_MONGODB_URI: mongodb://admin:admin123@mongodb:27017/mypolicy?authSource=admin
-      # External Service URLs
-      CUSTOMER_SERVICE_URL: http://customer-service:8081
-      POLICY_SERVICE_URL: http://policy-service:8085
     depends_on:
       config-service:
+        condition: service_healthy
+      discovery-service:
         condition: service_healthy
       postgres:
         condition: service_healthy
@@ -158,13 +184,13 @@ services:
       - "8080:8080"
     environment:
       SPRING_PROFILES_ACTIVE: docker
-      SPRING_CLOUD_CONFIG_URI: http://config-service:8888
+      SPRING_CONFIG_IMPORT: optional:configserver:http://admin:config123@config-service:8888
       SPRING_APPLICATION_NAME: bff-service
-      CUSTOMER_SERVICE_URL: http://customer-service:8081
-      POLICY_SERVICE_URL: http://policy-service:8085
-      DATA_PIPELINE_SERVICE_URL: http://data-pipeline-service:8082
+      EUREKA_DEFAULT_ZONE: http://discovery-service:8761/eureka
     depends_on:
       config-service:
+        condition: service_healthy
+      discovery-service:
         condition: service_healthy
       customer-service:
         condition: service_started

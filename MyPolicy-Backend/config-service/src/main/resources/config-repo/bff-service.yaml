@@ -10,34 +10,6 @@ spring:
     name: bff-service
 
 # ============================================
-# Service URLs (Centrally Managed)
-# ============================================
-customer:
-  service:
-    url: http://localhost:8081
-
-policy:
-  service:
-    url: http://localhost:8085
-
-# Data Pipeline Service (Consolidated: Ingestion + Metadata + Processing + Matching)
-data-pipeline:
-  service:
-    url: http://localhost:8082
-
-ingestion:
-  service:
-    url: http://localhost:8082
-
-metadata:
-  service:
-    url: http://localhost:8082
-
-processing:
-  service:
-    url: http://localhost:8082
-
-# ============================================
 # Feign Configuration
 # ============================================
 feign:
@@ -75,3 +47,10 @@ management:
   endpoint:
     health:
       show-details: always
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_DEFAULT_ZONE:http://localhost:8761/eureka}
+  instance:
+    prefer-ip-address: true
