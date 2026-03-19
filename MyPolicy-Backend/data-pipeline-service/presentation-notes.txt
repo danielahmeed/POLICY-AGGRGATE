@@ -1,0 +1,76 @@
+Presentation notes for data-pipeline-service and system architecture
+===================================================================
+
+1) What the data-pipeline-service does
+-------------------------------------
+- It exposes REST APIs under `/api/pipeline` to:
+  - Run the full ingestion and stitching pipeline: `POST /api/pipeline/run`
+  - Upload CSV files and immediately process them: `POST /api/pipeline/upload` (multipart form-data with `file` and `collectionName`)
+- The pipeline reads CSV data (for example from the sample datasets in `Datasets/`), ingests it into MongoDB collections, and then performs metadata-driven "stitching":
+  - It links customer records and policy records using identifiers such as PAN, Mobile + DOB, and Email + DOB.
+  - It calculates how many records were processed, how many matched, and how many remained unmatched.
+- The controller `PipelineController` delegates to `PipelineOrchestratorService`, which orchestrates the pipeline and returns a `StitchingResult` summary:
+  - `totalProcessed`
+  - `matched`
+  - `unmatched`
+
+2) How backend services connect to each other
+--------------------------------------------
+- The backend is built as a Spring Boot microservices system:
+  - `config-service` (port 8888) – centralized configuration server.
+  - `discovery-service` (port 8761) – Eureka service registry.
+  - `customer-service` (port 8081) – manages customers and JWT-based authentication.
+  - `policy-service` (port 8085) – manages insurance policies.
+  - `data-pipeline-service` (port 8082) – ingestion, transformation, stitching, and portfolio APIs.
+  - `bff-service` (port 8090) – “Backend for Frontend” that aggregates data for the UI.
+- All business services (customer, policy, data-pipeline, bff) register with Eureka and fetch configuration from config-service.
+- The BFF uses HTTP/Feign clients to call:
+  - customer-service for customer details and authentication.
+  - policy-service for policy lists by customer.
+  - data-pipeline-service for stitched portfolio data and health checks.
+- MongoDB Atlas is the shared data store for customer, policy, and pipeline collections. The data-pipeline-service writes processed/stiched data; customer-service and policy-service read/write their domain collections.
+
+3) How backend and frontend are connected
+-----------------------------------------
+- The BFF exposes REST endpoints for the frontend under `/api/bff/...`:
+  - Login: `POST /api/bff/auth/login` with JSON body containing `customerIdOrUserId` and `password`.
+    - User ID is the full customer name (e.g. "Amit Ramesh Kulkarni").
+    - Password is the PAN (e.g. "AKCPK1123L").
+  - Portfolio: `GET /api/bff/portfolio/{customerId}` with `Authorization: Bearer <JWT>`.
+- The Flutter frontend (see `frontend/lib/main.dart` and screens) calls the BFF’s `/api/bff` endpoints, not the individual microservices directly.
+  - After login, the UI shows portfolio summary and policy details obtained from the BFF.
+  - The BFF internally calls data-pipeline-service, policy-service, and customer-service to build a unified `PortfolioResponse`.
+- In presentations, you can describe this flow as:
+  1. User opens the Flutter web/app UI.
+  2. User logs in via BFF (`/api/bff/auth/login`), which forwards auth to customer-service.
+  3. Upon success, frontend stores the JWT and uses it for subsequent calls.
+  4. Frontend requests `/api/bff/portfolio/{customerId}`.
+  5. BFF aggregates:
+     - Customer profile from customer-service.
+     - Policies from policy-service.
+     - Stitched portfolio metrics from data-pipeline-service.
+  6. BFF returns a single portfolio payload rendered by the UI.
+
+4) How to explain the architecture diagram in words
+---------------------------------------------------
+- The system is organized like this:
+  - At the bottom, MongoDB Atlas stores all customer, policy, and processed portfolio data.
+  - Above that, three domain services (customer, policy, data-pipeline) each focus on a single responsibility and connect to MongoDB.
+  - A discovery-service (Eureka) lets services find each other by name, and a config-service centralizes configuration.
+  - On top, the bff-service sits between the browser/app and the microservices:
+    - It serves the static frontend and exposes simplified APIs for login and portfolio.
+    - It hides the complexity of multiple microservices from the frontend.
+  - The browser/Flutter frontend talks only to the bff-service (port 8090).
+
+5) Concrete endpoints to demo
+-----------------------------
+- Start services in order (from `MyPolicy-Backend`):
+  - config-service → discovery-service → customer-service, policy-service, data-pipeline-service → bff-service.
+- In the demo you can show:
+  - `POST http://localhost:8090/api/bff/auth/login`
+  - `GET http://localhost:8090/api/bff/portfolio/{customerId}`
+  - (Optional) Call data-pipeline-service directly:
+    - `POST http://localhost:8082/api/pipeline/run`
+    - `POST http://localhost:8082/api/pipeline/upload` with a CSV file and `collectionName`.
+
+Use this text as your speaking script: start from the high-level architecture, then zoom into the data-pipeline-service, then show how the frontend talks to the BFF, and how the BFF orchestrates all backend services.

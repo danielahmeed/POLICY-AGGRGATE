@@ -13,9 +13,10 @@ spring:
   # ============================================
   # MongoDB Configuration
   # ============================================
+  # MongoDB URI is set via environment variable or the service's application.yaml
+  # Do NOT define it here — config server resolves placeholders server-side.
   data:
     mongodb:
-      uri: ${SPRING_DATA_MONGODB_URI:mongodb+srv://praticks2003_db_user:cPZqSJF3LPPsHSEv@cluster0.enwyvnr.mongodb.net/Backend_databases?retryWrites=true&w=majority}
       database: Backend_databases
       auto-index-creation: true
 

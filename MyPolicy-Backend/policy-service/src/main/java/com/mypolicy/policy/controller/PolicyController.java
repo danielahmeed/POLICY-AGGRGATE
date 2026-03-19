@@ -23,9 +23,19 @@ public class PolicyController {
     return ResponseEntity.ok(policyService.createPolicy(request));
   }
 
+  @PostMapping("/bulk")
+  public ResponseEntity<List<Policy>> bulkCreatePolicies(@RequestBody List<@Valid PolicyRequest> requests) {
+    return ResponseEntity.ok(policyService.bulkCreatePolicies(requests));
+  }
+
   @GetMapping("/customer/{customerId}")
   public ResponseEntity<List<Policy>> getPoliciesByCustomer(@PathVariable String customerId) {
     return ResponseEntity.ok(policyService.getPoliciesByCustomerId(customerId));
+  }
+
+  @GetMapping("/customer/int/{customerId}")
+  public ResponseEntity<List<Policy>> getPoliciesByCustomerInt(@PathVariable Integer customerId) {
+    return ResponseEntity.ok(policyService.getPoliciesByCustomerIdInt(customerId));
   }
 
   @GetMapping("/{id}")

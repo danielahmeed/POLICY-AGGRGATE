@@ -1,0 +1,8 @@
+Policy Number,Customer Name,DOB,Gender,PAN,Mobile,Email,Insurer,Plan Name,Coverage Amount,Annual Premium,Policy Start Date,Policy End Date,Policy Type,City
+HEPM1000,Amit Ramesh Kulkarni,19920314,M,AKCPK1123L,919876543210,amit.kulkarni@example.com,HDFC Life,Standard Plan,500000,18500,20240101,20251231,Individual,Delhi
+HEPM1001,Sneha Prakash Patil,19950721,F,BPQPP2345M,919812345678,sneha.patil@example.com,Bajaj Allianz,Standard Plan,300000,12000,20240215,20260214,Individual,PUNE
+HEPM1002,Rahul Sanjay Deshmukh,19901109,M,CDEPD3456N,919823456789,rahul.deshmukh@example.com,ICICI Lombard,Family Floater,750000,22500,20230310,20250309,Family Floater,Delhi
+HEPM1003,Pooja Anil Joshi,19960830,F,DEFPJ4567P,919834567890,pooja.joshi@example.com,SBI Life,Standard Plan,400000,14500,20240120,20260119,Individual,Noida
+HEPM1004,Kunal Mahesh Shah,19940117,M,EFGH55678Q,919845678901,kunal.shah@example.com,Tata AIG,Standard Plan,600000,19800,20231201,20251130,Individual,PUNE
+HEPM2000,Pan Missing Mobile+Dob Match,19980311,F,,919878901234,rituja.chavan@othermail.com,HDFC Ergo,Standard Plan,350000,12800,20240601,20260531,Individual,Mumbai
+

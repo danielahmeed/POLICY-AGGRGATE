@@ -3,7 +3,7 @@
 # ============================================
 
 server:
-  port: 8081
+  port: 8087
 
 spring:
   application:
@@ -12,9 +12,11 @@ spring:
   # ============================================
   # MongoDB Database Configuration
   # ============================================
+  # MongoDB URI is set via environment variable or customer-service's application.yaml
+  # Do NOT define it here — config server resolves placeholders server-side,
+  # which would ignore the client's SPRING_DATA_MONGODB_URI env var.
   data:
     mongodb:
-      uri: ${SPRING_DATA_MONGODB_URI:mongodb+srv://praticks2003_db_user:cPZqSJF3LPPsHSEv@cluster0.enwyvnr.mongodb.net/Backend_databases?retryWrites=true&w=majority}
       database: Backend_databases
 
 # ============================================

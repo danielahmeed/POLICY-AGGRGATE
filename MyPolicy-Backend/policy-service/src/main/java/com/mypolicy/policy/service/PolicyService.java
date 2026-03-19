@@ -10,7 +10,11 @@ import java.util.Optional;
 public interface PolicyService {
   Policy createPolicy(PolicyRequest request);
 
+  List<Policy> bulkCreatePolicies(List<PolicyRequest> requests);
+
   List<Policy> getPoliciesByCustomerId(String customerId);
+
+  List<Policy> getPoliciesByCustomerIdInt(Integer customerId);
 
   Policy getPolicyById(String id);
 

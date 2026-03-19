@@ -56,7 +56,7 @@ services:
       dockerfile: Dockerfile
     container_name: customer-service
     ports:
-      - "8081:8081"
+      - "8081:8087"
     depends_on:
       config-service:
         condition: service_healthy
@@ -65,13 +65,13 @@ services:
       mongodb:
         condition: service_healthy
     environment:
-      SPRING_CONFIG_IMPORT: optional:configserver:http://admin:config123@config-service:8888
+      CONFIG_SERVER_URI: http://admin:config123@config-service:8888
       EUREKA_DEFAULT_ZONE: http://discovery-service:8761/eureka
       SPRING_DATA_MONGODB_URI: mongodb://mongodb:27017/Backend_databases
     networks:
       - mypolicy-net
     healthcheck:
-      test: ["CMD", "curl", "-sf", "http://localhost:8081/actuator/health"]
+      test: ["CMD", "curl", "-sf", "http://localhost:8087/health"]
       interval: 15s
       timeout: 5s
       retries: 3
@@ -92,7 +92,7 @@ services:
       mongodb:
         condition: service_healthy
     environment:
-      SPRING_CONFIG_IMPORT: optional:configserver:http://admin:config123@config-service:8888
+      CONFIG_SERVER_URI: http://admin:config123@config-service:8888
       EUREKA_DEFAULT_ZONE: http://discovery-service:8761/eureka
       SPRING_DATA_MONGODB_URI: mongodb://mongodb:27017/Backend_databases
     networks:
@@ -119,14 +119,14 @@ services:
       mongodb:
         condition: service_healthy
     environment:
-      SPRING_CONFIG_IMPORT: optional:configserver:http://admin:config123@config-service:8888
+      CONFIG_SERVER_URI: http://admin:config123@config-service:8888
       EUREKA_DEFAULT_ZONE: http://discovery-service:8761/eureka
       SPRING_DATA_MONGODB_URI: mongodb://mongodb:27017/Backend_databases
       MONGODB_URI: mongodb://mongodb:27017/Backend_databases
     networks:
       - mypolicy-net
     healthcheck:
-      test: ["CMD", "curl", "-sf", "http://localhost:8082/actuator/health"]
+      test: ["CMD", "curl", "-sf", "http://localhost:8082/insurer-portal"]
       interval: 15s
       timeout: 5s
       retries: 3
@@ -151,13 +151,13 @@ services:
       data-pipeline-service:
         condition: service_healthy
     environment:
-      SPRING_CONFIG_IMPORT: optional:configserver:http://admin:config123@config-service:8888
+      CONFIG_SERVER_URI: http://admin:config123@config-service:8888
       EUREKA_DEFAULT_ZONE: http://discovery-service:8761/eureka
       SPRING_PROFILES_ACTIVE: docker
     networks:
       - mypolicy-net
     healthcheck:
-      test: ["CMD", "curl", "-sf", "http://localhost:8090/actuator/health"]
+      test: ["CMD", "curl", "-sf", "http://localhost:8090/api/bff/health"]
       interval: 15s
       timeout: 5s
       retries: 3
@@ -165,13 +165,28 @@ services:
 
   frontend:
     build:
-      context: ../frontend
+      context: ./frontend
       dockerfile: Dockerfile
     container_name: frontend
     ports:
       - "8080:80"
     depends_on:
       bff-service:
+        condition: service_healthy
+    networks:
+      - mypolicy-net
+
+  insurer-dashboard:
+    build:
+      context: ./Insurer_Dashboard
+      dockerfile: Dockerfile
+    container_name: insurer-dashboard
+    ports:
+      - "8086:80"
+    depends_on:
+      bff-service:
+        condition: service_healthy
+      data-pipeline-service:
         condition: service_healthy
     networks:
       - mypolicy-net

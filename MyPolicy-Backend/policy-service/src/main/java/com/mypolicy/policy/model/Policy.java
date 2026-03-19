@@ -45,6 +45,15 @@ public class Policy {
 
   private PolicyStatus status;
 
+  // Stitching metadata (populated by Data Pipeline after identity matching)
+  private String sourceCollection; // e.g., auto_insurance, health_insurance, life_insurance
+  private String matchMethod; // e.g., PAN_MATCH, MOBILE_DOB_MATCH, EMAIL_DOB_MATCH
+
+  // Encrypted PII (data-at-rest encryption)
+  private String encryptedPan;
+  private String encryptedMobile;
+  private String encryptedEmail;
+
   private LocalDateTime createdAt;
   private LocalDateTime updatedAt;
 }

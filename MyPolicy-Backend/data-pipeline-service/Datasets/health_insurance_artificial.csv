@@ -1,0 +1,13 @@
+Policy Number,Customer Name,DOB,Gender,PAN,Mobile,Email,Insurer,Plan Name,Coverage Amount,Annual Premium,Policy Start Date,Policy End Date,Policy Type,City
+HLT3000,Riya Das,1980-07-23,M,ABCDE0000F,9882394227,riya.das100@mail.com,Bajaj Allianz,Health Protect,639902,15005,2024-06-01,2025-06-01,Individual,Bangalore
+HLT3001,Sneha Iyer,1983-02-17,M,ABCDE0201F,9823756669,sneha.iyer201@mail.com,HDFC Ergo,Health Protect,680612,12038,2024-06-01,2025-06-01,Individual,Mumbai
+HLT3002,Anita Kulkarni,1989-06-18,M,ABCDE0302F,9842138745,anita.kulkarni2@mail.com,ICICI Lombard,Health Protect,894916,8290,2024-06-01,2025-06-01,Individual,Delhi
+HLT3003,Riya Das,1984-11-26,F,ABCDE0003F,9821496211,riya.das103@mail.com,HDFC Ergo,Health Protect,858582,9060,2024-06-01,2025-06-01,Individual,Delhi
+HLT3004,Vikram Rao,1984-06-16,M,ABCDE0204F,9897226012,vikram.rao204@mail.com,LIC,Health Protect,876510,9705,2024-06-01,2025-06-01,Individual,Pune
+HLT3005,Sneha Iyer,1990-01-27,F,ABCDE0305F,9845575298,sneha.iyer5@mail.com,ICICI Lombard,Health Protect,865492,10295,2024-06-01,2025-06-01,Individual,Chennai
+HLT3006,Amit Sharma,1997-01-07,F,ABCDE0006F,9851837852,amit.sharma106@mail.com,Star Health,Health Protect,759381,15479,2024-06-01,2025-06-01,Individual,Pune
+HLT3007,Neha Gupta,1986-03-26,F,ABCDE0207F,9830868105,neha.gupta207@mail.com,HDFC Ergo,Health Protect,559947,10681,2024-06-01,2025-06-01,Individual,Bangalore
+HLT3008,Neha Gupta,1982-04-17,F,ABCDE0308F,9818593410,neha.gupta8@mail.com,HDFC Ergo,Health Protect,916886,16075,2024-06-01,2025-06-01,Individual,Pune
+HLT3009,Riya Das,1988-01-19,M,ABCDE0009F,9840885476,riya.das109@mail.com,HDFC Ergo,Health Protect,374441,17339,2024-06-01,2025-06-01,Individual,Chennai
+HLT3010,Amit Sharma,1996-05-13,M,ABCDE0210F,9871662963,amit.sharma210@mail.com,ICICI Lombard,Health Protect,370674,7514,2024-06-01,2025-06-01,Individual,Mumbai
+HLT3011,Karan Patel,1981-10-07,M,ABCDE0311F,9854349361,karan.patel11@mail.com,Bajaj Allianz,Health Protect,549565,11562,2024-06-01,2025-06-01,Individual,Chennai

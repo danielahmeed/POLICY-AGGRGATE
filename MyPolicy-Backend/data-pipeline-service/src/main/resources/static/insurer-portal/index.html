@@ -188,6 +188,47 @@
             padding-top: 1rem;
             border-top: 1px solid var(--border);
         }
+        .tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            margin-bottom: 0.5rem;
+        }
+        .tab {
+            padding: 0.4rem 0.75rem;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-size: 0.8rem;
+            border: 1px solid var(--border);
+            color: var(--muted);
+            background: transparent;
+        }
+        .tab.active {
+            border-color: var(--accent);
+            color: var(--accent-hover);
+            background: rgba(59, 130, 246, 0.08);
+        }
+        .failed-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 0.75rem;
+            font-size: 0.75rem;
+        }
+        .failed-table th,
+        .failed-table td {
+            border: 1px solid var(--border);
+            padding: 0.3rem 0.4rem;
+            text-align: left;
+            vertical-align: top;
+        }
+        .failed-table th {
+            color: var(--muted);
+            background: rgba(255,255,255,0.02);
+        }
+        .code-small {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+        }
         .help ul {
             margin-left: 1.25rem;
             margin-top: 0.5rem;
@@ -212,11 +253,11 @@
     <div class="layout">
         <header>
             <h1>MyPolicy Insurer Portal</h1>
-            <p class="subtitle">Upload policy or customer data CSV files</p>
+            <p class="subtitle">Upload policy or customer data files (CSV / XLSX) and track ingestion status</p>
         </header>
 
         <div class="card">
-            <div class="card-title">Upload File</div>
+            <div class="card-title">Upload File (Async)</div>
             <form id="uploadForm">
                 <label for="collection">Data Type</label>
                 <select id="collection" name="collectionName" required>
@@ -227,23 +268,56 @@
                     <option value="auto_insurance">Auto Insurance</option>
                 </select>
 
-                <label>CSV File</label>
+                <label>CSV / Excel File</label>
                 <div class="file-input-wrapper" id="fileWrapper" onclick="document.getElementById('fileInput').click()">
-                    <input type="file" id="fileInput" name="file" accept=".csv" required>
-                    <span class="file-placeholder" id="filePlaceholder">Click to select a CSV file</span>
+                    <input type="file" id="fileInput" name="file" accept=".csv,.xlsx" required>
+                    <span class="file-placeholder" id="filePlaceholder">Click to select a CSV or XLSX file</span>
                     <span class="file-name" id="fileName" style="display:none"></span>
                 </div>
 
                 <button type="submit" class="btn btn-primary" id="submitBtn">
-                    Upload & Process
+                    Upload & Start Job
                 </button>
             </form>
 
             <div class="result" id="result"></div>
         </div>
 
+        <div class="card" id="jobCard" style="display:none">
+            <div class="card-title">Results</div>
+            <div class="tabs">
+                <button class="tab active" id="tabJobStats">Job Status</button>
+                <button class="tab" id="tabFailedLog">Failed Log</button>
+            </div>
+            <div id="jobStatusPanel">
+                <div id="jobStatusText" class="help"></div>
+                <div class="stats" id="jobStats" style="display:none">
+                    <div class="stat">
+                        <span class="stat-value" id="jobTotalProcessed">0</span>
+                        <span class="stat-label">Processed</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-value" id="jobMatched">0</span>
+                        <span class="stat-label">Matched</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-value" id="jobUnmatched">0</span>
+                        <span class="stat-label">Unmatched</span>
+                    </div>
+                </div>
+            </div>
+            <div id="failedLogPanel" style="display:none">
+                <div class="help" id="failedLogInfo">
+                    Failed validation rows for the current collection (latest 50).
+                </div>
+                <div id="failedLogTableWrapper" class="help" style="margin-top:0.5rem">
+                    <!-- table injected by JS -->
+                </div>
+            </div>
+        </div>
+
         <div class="card">
-            <div class="card-title">Accepted Formats</div>
+            <div class="card-title">Pipeline Behaviour & Accepted Formats</div>
             <div class="help">
                 <ul>
                     <li><strong>customer_details</strong> – Customer master (customerId, refCustItNum, refPhoneMobile, custEmailID, datBirthCust)</li>
@@ -251,7 +325,30 @@
                     <li><strong>health_insurance</strong> – Health policy data (Policy Number, Annual Premium, Policy Start Date, PAN, Mobile, Email)</li>
                     <li><strong>auto_insurance</strong> – Auto policy data (PolicyNumber, AnnualPremium, PolicyStartDate, PAN, Mobile, Email)</li>
                 </ul>
-                <p style="margin-top:0.75rem">Upload <strong>customer_details</strong> first, then policy files. Overlapping PAN/Mobile/Email values enable stitching.</p>
+                <p style="margin-top:0.75rem">
+                    Upload <strong>customer_details</strong> first, then policy files. Overlapping PAN / Mobile / Email values enable stitching
+                    into a unified portfolio.
+                </p>
+                <p style="margin-top:0.5rem">
+                    For each upload, the pipeline performs:
+                </p>
+                <ul>
+                    <li><strong>Structural checks</strong> – headers present, rows non-empty.</li>
+                    <li><strong>Semantic validation</strong> – PAN / Mobile / Email / DOB formats checked per row.</li>
+                    <li><strong>Idempotent ingestion</strong> – duplicates by (policyNumber + insurer) are skipped.</li>
+                    <li><strong>Stitching</strong> – policies linked to customers using PAN, then Mobile+DOB, then Email+DOB.</li>
+                </ul>
+                <p style="margin-top:0.5rem">
+                    Outcomes:
+                </p>
+                <ul>
+                    <li><strong>Matched</strong> – goes to <code>unified_portfolio</code> and appears in customer dashboards.</li>
+                    <li><strong>Unmatched</strong> – clean but not linked; stored in <code>unmatched_policies</code> for ops review.</li>
+                    <li><strong>Failed validation</strong> – structurally incorrect (e.g. bad PAN / email / DOB format); stored in <code>failed_log</code> with error reasons.</li>
+                </ul>
+                <p style="margin-top:0.5rem">
+                    Each upload runs as an <strong>async job</strong>; you can monitor <strong>processed / matched / unmatched</strong> counts in the Job Status panel above.
+                </p>
             </div>
         </div>
     </div>
@@ -264,6 +361,17 @@
         const fileNameEl = document.getElementById('fileName');
         const resultEl = document.getElementById('result');
         const submitBtn = document.getElementById('submitBtn');
+        const jobCard = document.getElementById('jobCard');
+        const jobStatusText = document.getElementById('jobStatusText');
+        const jobStats = document.getElementById('jobStats');
+        const jobTotalProcessed = document.getElementById('jobTotalProcessed');
+        const jobMatched = document.getElementById('jobMatched');
+        const jobUnmatched = document.getElementById('jobUnmatched');
+        const tabJobStats = document.getElementById('tabJobStats');
+        const tabFailedLog = document.getElementById('tabFailedLog');
+        const jobStatusPanel = document.getElementById('jobStatusPanel');
+        const failedLogPanel = document.getElementById('failedLogPanel');
+        const failedLogTableWrapper = document.getElementById('failedLogTableWrapper');
 
         fileInput.addEventListener('change', function() {
             if (this.files.length) {
@@ -295,12 +403,16 @@
             formData.append('collectionName', collection);
 
             submitBtn.disabled = true;
-            submitBtn.innerHTML = '<span class="spinner"></span> Processing…';
+            submitBtn.innerHTML = '<span class="spinner"></span> Starting job…';
             resultEl.className = 'result';
             resultEl.classList.remove('result-visible');
+            jobCard.style.display = 'none';
+            jobStats.style.display = 'none';
+            failedLogPanel.style.display = 'none';
+            setActiveTab('job');
 
             try {
-                const res = await fetch('/api/pipeline/upload', {
+                const res = await fetch('/api/pipeline/upload-async', {
                     method: 'POST',
                     body: formData
                 });
@@ -311,27 +423,115 @@
                     return;
                 }
 
-                let html = `<strong>${data.message}</strong>`;
-                if (data.totalProcessed !== undefined) {
-                    html += `
-                    <div class="stats">
-                        <div class="stat"><span class="stat-value">${data.totalProcessed}</span><span class="stat-label">Processed</span></div>
-                        <div class="stat"><span class="stat-value">${data.matched}</span><span class="stat-label">Matched</span></div>
-                        <div class="stat"><span class="stat-value">${data.unmatched}</span><span class="stat-label">Unmatched</span></div>
-                    </div>`;
-                }
-                showResult(html, 'success', true);
+                const jobId = data.jobId;
+                showResult(
+                    `Job <code>${jobId}</code> queued. Tracking status below…`,
+                    'success',
+                    true
+                );
+                startJobPolling(jobId, collection);
             } catch (err) {
-                showResult('Network error. Is the service running on port 8081?', 'error');
+                showResult('Network error. Is the data-pipeline-service running on port 8082?', 'error');
             } finally {
                 submitBtn.disabled = false;
-                submitBtn.textContent = 'Upload & Process';
+                submitBtn.textContent = 'Upload & Start Job';
             }
         });
 
         function showResult(msg, type, isHtml) {
             resultEl.innerHTML = isHtml ? msg : (msg || '').replace(/</g, '&lt;').replace(/>/g, '&gt;');
             resultEl.className = 'result ' + type + ' result-visible';
+        }
+
+        function setActiveTab(which) {
+            if (which === 'job') {
+                tabJobStats.classList.add('active');
+                tabFailedLog.classList.remove('active');
+                jobStatusPanel.style.display = 'block';
+                failedLogPanel.style.display = 'none';
+            } else {
+                tabFailedLog.classList.add('active');
+                tabJobStats.classList.remove('active');
+                jobStatusPanel.style.display = 'none';
+                failedLogPanel.style.display = 'block';
+            }
+        }
+
+        tabJobStats.addEventListener('click', () => setActiveTab('job'));
+        tabFailedLog.addEventListener('click', () => setActiveTab('failed'));
+
+        async function startJobPolling(jobId, collection) {
+            jobCard.style.display = 'block';
+            jobStatusText.innerHTML = `Job <code>${jobId}</code> status: <strong>QUEUED</strong>`;
+
+            const poll = async () => {
+                try {
+                    const res = await fetch(`/api/pipeline/jobs/${jobId}`);
+                    if (!res.ok) {
+                        jobStatusText.textContent = 'Failed to fetch job status.';
+                        return;
+                    }
+                    const job = await res.json();
+                    jobStatusText.innerHTML = `Job <code>${job.jobId}</code> status: <strong>${job.status}</strong><br/>${job.message || ''}`;
+
+                    if (job.totalProcessed !== null && job.totalProcessed !== undefined) {
+                        jobStats.style.display = 'grid';
+                        jobTotalProcessed.textContent = job.totalProcessed ?? 0;
+                        jobMatched.textContent = job.matched ?? 0;
+                        jobUnmatched.textContent = job.unmatched ?? 0;
+                    }
+
+                    if (job.status === 'COMPLETE' || job.status === 'FAILED') {
+                        // After job reaches a terminal state, load failed_log for this collection
+                        if (collection && collection !== 'customer_details') {
+                            loadFailedLog(collection);
+                        } else {
+                            failedLogTableWrapper.innerHTML = '<div class="help">No failed_log entries shown for this data type.</div>';
+                        }
+                        return;
+                    }
+
+                    setTimeout(poll, 2000);
+                } catch (e) {
+                    jobStatusText.textContent = 'Error while polling job status.';
+                }
+            };
+
+            poll();
+        }
+
+        async function loadFailedLog(collection) {
+            try {
+                const res = await fetch(`/api/pipeline/failed-log?collectionName=${encodeURIComponent(collection)}&limit=50`);
+                if (!res.ok) {
+                    failedLogTableWrapper.innerHTML = '<div class="help">Failed to load failed_log entries.</div>';
+                    return;
+                }
+                const entries = await res.json();
+                if (!entries.length) {
+                    failedLogTableWrapper.innerHTML = '<div class="help">No failed_log entries for this collection.</div>';
+                    return;
+                }
+
+                let html = '<table class="failed-table"><thead><tr>' +
+                    '<th>Time</th><th>Insurer</th><th>Errors</th><th>Raw Data</th></tr></thead><tbody>';
+                for (const e of entries) {
+                    const created = e.createdAt || '';
+                    const insurer = e.insurer || '';
+                    const errors = e.validationErrors || '';
+                    const raw = e.rawData ? JSON.stringify(e.rawData) : '';
+                    html += `<tr>` +
+                        `<td>${created}</td>` +
+                        `<td>${insurer}</td>` +
+                        `<td>${errors}</td>` +
+                        `<td><span class="code-small">${raw}</span></td>` +
+                        `</tr>`;
+                }
+                html += '</tbody></table>';
+                failedLogTableWrapper.innerHTML = html;
+            } catch (e) {
+                failedLogTableWrapper.innerHTML = '<div class="help">Error while loading failed_log entries.</div>';
+            }
         }
     </script>
 </body>

@@ -6,7 +6,7 @@ import com.mypolicy.bff.dto.LoginRequest;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.*;
 
-@FeignClient(name = "customer-service")
+@FeignClient(name = "customer-service", url = "${customer.service.url}")
 public interface CustomerClient {
 
   @PostMapping("/api/v1/customers/register")
@@ -17,13 +17,6 @@ public interface CustomerClient {
 
   @GetMapping("/api/v1/customers/{customerId}")
   CustomerDTO getCustomerById(@PathVariable("customerId") String customerId);
-
-  /**
-   * Get customer details by Integer customerId (from customer_details collection).
-   * Used for portfolio - users who logged in via full name + PAN.
-   */
-  @GetMapping("/api/v1/customers/details/{customerId}")
-  CustomerDTO getCustomerDetails(@PathVariable("customerId") Integer customerId);
 
   @PutMapping("/api/v1/customers/{customerId}")
   CustomerDTO updateCustomer(@PathVariable("customerId") String customerId, @RequestBody Object request);

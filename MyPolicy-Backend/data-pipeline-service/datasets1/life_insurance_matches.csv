@@ -1,0 +1,10 @@
+PolicyNum,CustomerName,DOB,Gender,PAN,Mobile,Email,Insurer,PlanName,PolicyTerm,SumAssured,AnnualPrem,PolicyStart,PolicyEnd,NomineeName,NomineeRelation,City
+LIFM1000,Amit Ramesh Kulkarni,19920314,M,AKCPK1123L,919876543210,amit.kulkarni@example.com,HDFC Life,Life Secure,20,500000,18500,20240101,20260101,Spouse,Spouse,Delhi
+LIFM1001,Sneha Prakash Patil,19950721,F,BPQPP2345M,919812345678,sneha.patil@example.com,SBI Life,Life Secure,20,300000,12000,20240215,20270214,Spouse,Spouse,PUNE
+LIFM1002,Rahul Sanjay Deshmukh,19901109,M,CDEPD3456N,919823456789,rahul.deshmukh@example.com,ICICI Lombard,Life Secure,20,750000,22500,20230310,20260309,Spouse,Spouse,Delhi
+LIFM1003,Pooja Anil Joshi,19960830,F,DEFPJ4567P,919834567890,pooja.joshi@example.com,Star Health,Life Secure,15,400000,14500,20240120,20290119,Spouse,Spouse,Noida
+LIFM1004,Kunal Mahesh Shah,19940117,M,EFGH55678Q,919845678901,kunal.shah@example.com,Tata AIG,Life Secure,20,600000,19800,20231201,20311201,Spouse,Spouse,PUNE
+LIFM1005,Neha Vinod Jadhav,19921005,F,FGHJJ6789R,919856789012,neha.jadhav@example.com,HDFC Life,Life Secure,20,500000,16200,20240401,20300401,Spouse,Spouse,Hyderabad
+LIFM1006,Saurabh Dinesh Mehta,19891222,M,GHIMK7890S,919867890123,saurabh.mehta@example.com,Bajaj Allianz,Life Secure,20,550000,18500,20230515,20280515,Spouse,Spouse,PUNE
+LIFM2000,Pan Missing Mobile+Dob Match,19980311,F,,919878901234,rituja.chavan@othermail.com,HDFC Ergo,Life Secure,20,350000,12800,20240601,20280601,Spouse,Spouse,Mumbai
+

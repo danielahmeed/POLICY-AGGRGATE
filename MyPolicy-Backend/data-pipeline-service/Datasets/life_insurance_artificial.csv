@@ -1,0 +1,13 @@
+PolicyNum,CustomerName,DOB,Gender,PAN,Mobile,Email,Insurer,PlanName,PolicyTerm,SumAssured,AnnualPrem,PolicyStart,PolicyEnd,NomineeName,NomineeRelation,City
+LIF1000,Riya Das,19800723,F,ABCDE0000F,9846913810,riya.das0@mail.com,Bajaj Allianz,Life Secure,20,903258,19543,20230101,20430101,Family Member,Spouse,Bangalore
+LIF1001,Sneha Iyer,19830217,M,ABCDE0001F,9823756669,sneha.iyer1@mail.com,HDFC Ergo,Life Secure,20,1886769,11733,20230101,20430101,Family Member,Spouse,Mumbai
+LIF1002,Anita Kulkarni,19890618,F,ABCDE0002F,9814265799,anita.kulkarni2@mail.com,HDFC Ergo,Life Secure,20,988197,9654,20230101,20430101,Family Member,Spouse,Delhi
+LIF1003,Riya Das,19841126,F,ABCDE0003F,9841227216,riya.das3@mail.com,Star Health,Life Secure,20,1450870,18415,20230101,20430101,Family Member,Spouse,Delhi
+LIF1004,Vikram Rao,19840616,F,ABCDE0004F,9897226012,vikram.rao4@mail.com,ICICI Lombard,Life Secure,20,1276325,13820,20230101,20430101,Family Member,Spouse,Pune
+LIF1005,Sneha Iyer,19900127,M,ABCDE0005F,9889089901,sneha.iyer5@mail.com,Star Health,Life Secure,20,1971823,19199,20230101,20430101,Family Member,Spouse,Chennai
+LIF1006,Amit Sharma,19970107,M,ABCDE0006F,9831429110,amit.sharma6@mail.com,Bajaj Allianz,Life Secure,20,1831645,10803,20230101,20430101,Family Member,Spouse,Pune
+LIF1007,Neha Gupta,19860326,M,ABCDE0007F,9830868105,neha.gupta7@mail.com,ICICI Lombard,Life Secure,20,1469429,14216,20230101,20430101,Family Member,Spouse,Bangalore
+LIF1008,Neha Gupta,19820417,F,ABCDE0008F,9822448136,neha.gupta8@mail.com,Bajaj Allianz,Life Secure,20,960566,19216,20230101,20430101,Family Member,Spouse,Pune
+LIF1009,Riya Das,19880119,F,ABCDE0009F,9856164955,riya.das9@mail.com,HDFC Ergo,Life Secure,20,980348,8525,20230101,20430101,Family Member,Spouse,Chennai
+LIF1010,Amit Sharma,19960513,F,ABCDE0010F,9871662963,amit.sharma10@mail.com,LIC,Life Secure,20,1061493,9084,20230101,20430101,Family Member,Spouse,Mumbai
+LIF1011,Karan Patel,19811007,M,ABCDE0011F,9884093639,karan.patel11@mail.com,Bajaj Allianz,Life Secure,20,1159927,11483,20230101,20430101,Family Member,Spouse,Chennai

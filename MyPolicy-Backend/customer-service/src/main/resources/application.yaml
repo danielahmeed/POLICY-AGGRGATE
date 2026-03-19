@@ -1,9 +1,9 @@
 server:
-  port: 8081
+  port: 8087
 
 spring:
   config:
-    import: optional:configserver:http://admin:config123@localhost:8888
+    import: optional:configserver:${CONFIG_SERVER_URI:http://admin:config123@localhost:8888}
   application:
     name: customer-service
 

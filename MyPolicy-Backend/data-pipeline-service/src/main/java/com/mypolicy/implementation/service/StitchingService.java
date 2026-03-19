@@ -3,10 +3,12 @@ package com.mypolicy.implementation.service;
 import com.mypolicy.implementation.model.CustomerDetails;
 import com.mypolicy.implementation.model.StandardizedRecord;
 import com.mypolicy.implementation.model.UnifiedPortfolioRecord;
-import com.mypolicy.implementation.util.DataMassagingUtil;
+import com.mypolicy.implementation.model.UnmatchedPolicyRecord;
 import com.mypolicy.implementation.repository.CustomerDetailsRepository;
 import com.mypolicy.implementation.repository.UnifiedPortfolioRepository;
+import com.mypolicy.implementation.repository.UnmatchedPolicyRepository;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -21,12 +23,18 @@ public class StitchingService {
 
     private final CustomerDetailsRepository customerDetailsRepository;
     private final UnifiedPortfolioRepository unifiedPortfolioRepository;
+    private final UnmatchedPolicyRepository unmatchedPolicyRepository;
     private final SecurityUtils securityUtils;
     private final AuditLogger auditLogger;
 
-    public StitchingService(CustomerDetailsRepository customerDetailsRepository, UnifiedPortfolioRepository unifiedPortfolioRepository, SecurityUtils securityUtils, AuditLogger auditLogger) {
+    public StitchingService(CustomerDetailsRepository customerDetailsRepository,
+                            UnifiedPortfolioRepository unifiedPortfolioRepository,
+                            UnmatchedPolicyRepository unmatchedPolicyRepository,
+                            SecurityUtils securityUtils,
+                            AuditLogger auditLogger) {
         this.customerDetailsRepository = customerDetailsRepository;
         this.unifiedPortfolioRepository = unifiedPortfolioRepository;
+        this.unmatchedPolicyRepository = unmatchedPolicyRepository;
         this.securityUtils = securityUtils;
         this.auditLogger = auditLogger;
     }
@@ -36,6 +44,7 @@ public class StitchingService {
         AtomicInteger unmatched = new AtomicInteger(0);
 
         unifiedPortfolioRepository.deleteAll();
+        unmatchedPolicyRepository.deleteAll();
 
         for (StandardizedRecord policy : policies) {
             Optional<CustomerDetails> customer = findCustomer(policy);
@@ -49,6 +58,8 @@ public class StitchingService {
                         customer.get().getCustomerId()
                 );
             } else {
+                UnmatchedPolicyRecord unmatchedRecord = buildUnmatchedRecord(policy);
+                unmatchedPolicyRepository.save(unmatchedRecord);
                 unmatched.incrementAndGet();
             }
         }
@@ -85,6 +96,21 @@ public class StitchingService {
         }
 
         return Optional.empty();
+    }
+
+    private UnmatchedPolicyRecord buildUnmatchedRecord(StandardizedRecord policy) {
+        UnmatchedPolicyRecord record = new UnmatchedPolicyRecord();
+        record.setSourceCollection(policy.getSourceCollection());
+        record.setPolicyId(policy.getPolicyId());
+        record.setInsurer(policy.getInsurer());
+        record.setSumAssured(policy.getSumAssured());
+        record.setStartDate(policy.getStartDate());
+        record.setPolicyEnd(policy.getPolicyEnd());
+        record.setPan(policy.getPan());
+        record.setMobile(policy.getMobile());
+        record.setEmail(policy.getEmail());
+        record.setDob(policy.getDob());
+        return record;
     }
 
     private UnifiedPortfolioRecord buildUnifiedRecord(StandardizedRecord policy, CustomerDetails customer) {

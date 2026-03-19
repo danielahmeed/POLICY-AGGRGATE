@@ -14,10 +14,7 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.Map;
 
-/**
- * Loads mapping_config.json at startup. Maps insurer-specific field names to standard keys.
- * Enables metadata-driven ingestion without hard-coding insurer formats.
- */
+
 @Component
 public class MappingConfig {
 

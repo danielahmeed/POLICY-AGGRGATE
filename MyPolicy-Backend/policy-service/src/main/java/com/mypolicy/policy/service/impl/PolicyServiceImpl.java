@@ -40,6 +40,11 @@ public class PolicyServiceImpl implements PolicyService {
         .startDate(request.getStartDate())
         .endDate(request.getEndDate())
         .status(PolicyStatus.valueOf(request.getStatus()))
+        .sourceCollection(request.getSourceCollection())
+        .matchMethod(request.getMatchMethod())
+        .encryptedPan(request.getEncryptedPan())
+        .encryptedMobile(request.getEncryptedMobile())
+        .encryptedEmail(request.getEncryptedEmail())
         .createdAt(LocalDateTime.now())
         .updatedAt(LocalDateTime.now())
         .build();
@@ -48,8 +53,48 @@ public class PolicyServiceImpl implements PolicyService {
   }
 
   @Override
+  public List<Policy> bulkCreatePolicies(List<PolicyRequest> requests) {
+    List<Policy> created = new java.util.ArrayList<>();
+    for (PolicyRequest request : requests) {
+      Optional<Policy> existing = repository.findByPolicyNumberAndInsurerId(
+          request.getPolicyNumber(), request.getInsurerId());
+      if (existing.isPresent()) {
+        // Skip duplicates in bulk mode
+        continue;
+      }
+      Policy policy = Policy.builder()
+          .id(java.util.UUID.randomUUID().toString())
+          .customerId(request.getCustomerId())
+          .insurerId(request.getInsurerId())
+          .policyNumber(request.getPolicyNumber())
+          .policyType(request.getPolicyType())
+          .planName(request.getPlanName())
+          .premiumAmount(request.getPremiumAmount())
+          .sumAssured(request.getSumAssured())
+          .startDate(request.getStartDate())
+          .endDate(request.getEndDate())
+          .status(PolicyStatus.valueOf(request.getStatus()))
+          .sourceCollection(request.getSourceCollection())
+          .matchMethod(request.getMatchMethod())
+          .encryptedPan(request.getEncryptedPan())
+          .encryptedMobile(request.getEncryptedMobile())
+          .encryptedEmail(request.getEncryptedEmail())
+          .createdAt(LocalDateTime.now())
+          .updatedAt(LocalDateTime.now())
+          .build();
+      created.add(repository.save(policy));
+    }
+    return created;
+  }
+
+  @Override
   public List<Policy> getPoliciesByCustomerId(String customerId) {
     return repository.findByCustomerId(customerId);
+  }
+
+  @Override
+  public List<Policy> getPoliciesByCustomerIdInt(Integer customerId) {
+    return repository.findByCustomerId(String.valueOf(customerId));
   }
 
   @Override
@@ -72,10 +117,10 @@ public class PolicyServiceImpl implements PolicyService {
   public Policy updatePolicyStatus(String id, PolicyStatus status) {
     Policy policy = repository.findById(id)
         .orElseThrow(() -> new PolicyNotFoundException(id, "id"));
-    
+
     policy.setStatus(status);
     policy.setUpdatedAt(LocalDateTime.now());
-    
+
     return repository.save(policy);
   }
 
